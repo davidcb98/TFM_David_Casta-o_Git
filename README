@@ -1,0 +1,35 @@
+Code written by David Castaño Bandín to his End Master's Tesis in University of Santiago de Compostela, IGFAE.
+End Master's Tesis mentored by Nestor Armesto (IGFAE, University of Santiago de Compostela)
+
+To run the code it's necessary to have instaled the libraries:
+    - LHAPDF (at least 6.0.0). See https://lhapdf.hepforge.org/
+	You should download the pdf set "PDF4LHC21_40" or change it in the script "main_APFEL".
+    - APFEL. See https://apfel.hepforge.org/
+
+About data files:
+    In folder "data" there are some pseudo-experimental data (generated with saturation models). 
+    As ypu can see, the are four types of files for four difenrent process:
+       - LHeC_160: Colission in the (future) acelerator LHeC of 1 TeV protons with 60 MeV electrons
+       - LHeC_760: Colission in the (future) acelerator LHeC of 7 TeV protons with 60 MeV electrons
+       - FCC_720: Colission in the (future) acelerator FCC of 7 TeV protons with 20 MeV electrons
+       - LHeC_5060: Colission in the (future) acelerator LHeC of 50 TeV protons with 60 MeV electrons
+
+
+Run order:
+    - First, run "main_APFEL.py". 
+         This program generate some output files that will be saved in folder Output_APFEL.
+         It takes the data sets from the folder "data". 
+         It compute the DIS reduced cross secctions using APFEL for each giving point (x,Q^2) in the data sets.
+         Note: this first part isn't optimize, in sense that this script takes all the files
+               sepparately and compute the DIS reduced cross secctions. The optimize way of do this is take all
+               the files for the same process (LHeC_160, LHeC_760, FCC_720, FCC_5060) together and
+               compute the DIS reduced cross secction only one time per process. (Remmenber that all the files 
+               from the same procces have the same values of (x,Q^2))
+
+    - Second, run "main_rew.py". 
+         This program generate some output files that will be saved in folder Output_rew.
+         It takes the output files from "main_APFEL.py" and do the reweighting.
+ 
+    - Finaly, run "main_post_rew.py". 
+         This program generate some output files that will be saved in folder Output_rew_grafs.
+         It takes the output files from "main_rew.py" and generate the plots.
