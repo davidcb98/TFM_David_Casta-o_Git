@@ -26,17 +26,28 @@ files_lhec_760 = []
 files_fcc_720  = []
 files_fcc_5060 = []
 
+#print(files_names_all)
+#for i in range(len(files_names_all)):
+#    print(files_names_all[i][len(files_names_all[i])-14:len(files_names_all[i])-8])
+#input()
+
+
 for i in range(len(files_names_all)):
     if files_names_all[i][:7] == 'datlhec':
-        if files_names_all[i][7] == '1':
-            files_lhec_160.append(files_names_all[i])
-        else:
-            files_lhec_760.append(files_names_all[i])
+        if files_names_all[i][len(files_names_all[i])-14:len(files_names_all[i])-8] == 'random':
+            if files_names_all[i][7] == '1':
+                files_lhec_160.append(files_names_all[i])
+            else:
+                files_lhec_760.append(files_names_all[i])
     else:
-        if files_names_all[i][6] == '7':
-            files_fcc_720.append(files_names_all[i])
-        else:
-            files_fcc_5060.append(files_names_all[i])
+        if files_names_all[i][len(files_names_all[i])-14:len(files_names_all[i])-8] == 'random':
+            if files_names_all[i][6] == '7':
+                files_fcc_720.append(files_names_all[i])
+            else:
+                files_fcc_5060.append(files_names_all[i])
+
+# print(files_fcc_5060)
+# input()
 
 Q2_data_lhec_160, x_data_lhec_160, y_data_lhec_160, sigm_r_data_lhec_160, s_sigm_r_data_lhec_160, sigm_r_APFEL_lhec_160  = mf.ff_read_output_APFEL(Dir_Data_Folder,files_lhec_160)
 
@@ -68,8 +79,11 @@ sigm_r_APFEL
 
 # All vaules: x_min = 1e-10, x_max =1
 
-x_min = 1e-10
-x_max = 1
+# x_min = 1e-10
+# x_max = 1
+
+x_min = float(input('x_min = '))
+x_max = float(input('x_max = '))
 
 Q2_data_cut, x_data_cut, y_data_cut, sigm_r_data_cut, s_sigm_r_data_cut, sigm_r_APFEL_cut = mf.ff_cut_x_rew(Q2_data, x_data, y_data, sigm_r_data, s_sigm_r_data, sigm_r_APFEL, x_min, x_max)
 
@@ -87,6 +101,7 @@ os.makedirs('Output_rew/Q2-x-y-SigmNew-SigmRep')
 os.makedirs('Output_rew/SigmData')
 os.makedirs('Output_rew/files_names')
 os.makedirs('Output_rew/s_SigmData')
+os.makedirs('Output_rew/chi2')
 print('The directory "Output_rew" was created')
 
 

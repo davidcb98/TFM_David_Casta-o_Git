@@ -20,13 +20,14 @@ import shutil as sh
 
 Dir_Py_File  = os.path.dirname(os.path.realpath('__file__'))
 
-Dir_Data_Folders = [join(Dir_Py_File,'Output_rew/Q2-x-y-SigmNew-SigmRep/'), join(Dir_Py_File,'Output_rew/SigmData/'), join(Dir_Py_File,'Output_rew/s_SigmData/')]
+Dir_Data_Folders = [join(Dir_Py_File,'Output_rew/Q2-x-y-SigmNew-SigmRep/'), join(Dir_Py_File,'Output_rew/SigmData/'), join(Dir_Py_File,'Output_rew/s_SigmData/'), join(Dir_Py_File,'Output_rew/chi2')]
 
-files_names_SigmNew = [f for f in listdir(Dir_Data_Folders[0]) if isfile(join(Dir_Data_Folders[0], f))]
-files_names_SigmData = [f for f in listdir(Dir_Data_Folders[1]) if isfile(join(Dir_Data_Folders[1], f))]
+files_names_SigmNew    = [f for f in listdir(Dir_Data_Folders[0]) if isfile(join(Dir_Data_Folders[0], f))]
+files_names_SigmData   = [f for f in listdir(Dir_Data_Folders[1]) if isfile(join(Dir_Data_Folders[1], f))]
 files_names_s_SigmData = [f for f in listdir(Dir_Data_Folders[2]) if isfile(join(Dir_Data_Folders[2], f))]
+files_names_chi2       = [f for f in listdir(Dir_Data_Folders[3]) if isfile(join(Dir_Data_Folders[3], f))]
 
-files_names = [files_names_SigmNew, files_names_SigmData, files_names_s_SigmData]
+files_names = [files_names_SigmNew, files_names_SigmData, files_names_s_SigmData, files_names_chi2]
 # Q2-x-y-SigmNew-SigmRep  SigmData  s_SigmData
 
 files_lhec_160 = []
@@ -56,18 +57,20 @@ input('Press enter to continue')
 files_names = [files_lhec_160, files_lhec_760, files_fcc_720, files_fcc_5060]
 files_names_all   = ['LHeC_160', 'LHeC_720','FCC_720','FCC_5060']
 
-Q2_data_all       = []
-x_data_all        = []
-y_data_all        = []
-sigm_r_data_all   = []
-s_sigm_r_data_all = []
-sigm_r_new_all    = []
-s_sigm_r_new_all  = []
-sigm_r_APFEL_all  = []
-index_Q2_all      = []
+Q2_data_all             = []
+x_data_all              = []
+y_data_all              = []
+sigm_r_data_all         = []
+s_sigm_r_data_all       = []
+sigm_r_new_all          = []
+s_sigm_r_new_all        = []
+sigm_rep_menor_chi2_all = []
+sigm_r_APFEL_all        = []
+index_Q2_all            = []
+chi2_all                = []
 
 for i in range(4):
-    Q2_data, x_data, y_data, sigm_r_new, s_sigm_r_new, sigm_r_APFEL = mf.ff_read_output_rew(join(Dir_Data_Folders[0],files_names[i][0]))
+    Q2_data, x_data, y_data, sigm_r_new, s_sigm_r_new, sigm_rep_menor_chi2, sigm_r_APFEL = mf.ff_read_output_rew(join(Dir_Data_Folders[0],files_names[i][0]))
 
     Q2_data_all.append(Q2_data)
     x_data_all.append(x_data)
@@ -75,18 +78,27 @@ for i in range(4):
     sigm_r_new_all.append(sigm_r_new)
     s_sigm_r_new_all.append(s_sigm_r_new)
     sigm_r_APFEL_all.append(sigm_r_APFEL)
+    sigm_rep_menor_chi2_all.append(sigm_rep_menor_chi2)
 
     index_Q2_all.append(mf.ff_index_Qs(Q2_data))
-    
+
     sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[1],files_names[i][1]),dtype = float).tolist())
     s_sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[2],files_names[i][2]),dtype = float).tolist())
-
+    chi2_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float).tolist())
 
 files_names_data = []
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_lhec_160', dtype = str).tolist())
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_lhec_760', dtype = str).tolist())
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_160', dtype = str).tolist())
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_5060', dtype = str).tolist())
+
+
+
+for i in range(len(sigm_r_data_all)):
+    if type(sigm_r_data_all[i][0]) != list:
+        sigm_r_data_all[i] = [sigm_r_data_all[i]]
+        s_sigm_r_data_all[i] = [s_sigm_r_data_all[i]]
+        files_names_data[i] = [files_names_data[i]]
 
 #===============================================================================
 # Directory to save plots
@@ -128,6 +140,11 @@ for k in range(len(files_names_all)):
             sigm_r_APFEL_all[which_file][0][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             'x-r', markersize = 10,
             label = 'APFEL')
+        
+        plt.plot(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+            sigm_rep_menor_chi2_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+            'x-m', markersize = 10,
+             label = r'menor \chi^2')
 
         plt.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             sigm_r_new_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
@@ -148,6 +165,7 @@ for k in range(len(files_names_all)):
                 yerr = s_sigm_r_data_all[which_file][l][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
                 fmt = '.-'+colors[l],markersize = 10,
                 label = files_names_data[k][l][:-8])
+            
 
         # plt.title(str(files_names_all[which_file][:-4]))
 
@@ -161,5 +179,14 @@ for k in range(len(files_names_all)):
         plt.close(j) 
         j += 1
 
+for i in range(len(chi2_all)):
+    plt.figure(j)
+    plt.title(str(files_names_all[i]))
+    plt.hist(chi2_all[i],bins = 20)
+    plt.xlabel(r'\chi^2')
+    plt.tight_layout()
+    plt.savefig('Output_rew_graf/chi2_'+str(files_names_all[i]))
+    plt.close(j)
+    j +=1
 
 
