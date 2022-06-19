@@ -384,7 +384,7 @@ def ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias):
         Cada elemento de f_sigm_r_k es una lista con f_N_rep valores (replicas) para cada valor
         de (x,Q2), es decir, cada una de estas listas es para un (x,Q2) particular
     '''
-    f_random_list = [[rd.gauss(0,1) for i in range(len(f_sigm_r_APFEL[0]))] for j in range(f_N_copias)]
+    f_random_list = [[rd.gauss(0,1) for i in range(int((len(f_sigm_r_APFEL[0])-1)/2))] for j in range(f_N_copias)]
     f_sigm_r_k = [ff_sigm_r_k_xQ2(f_sigm_r_APFEL[i], f_random_list, f_N_copias) for i in range(len(f_sigm_r_APFEL))]
     return f_sigm_r_k, f_random_list
 
@@ -475,7 +475,7 @@ def ff_penalty(f_omega_k, f_random_list, f_N_copias, f_d_chi2 ,f_N_eig):
         
         aux1 += aux2**2
     
-    return aux1/(f_d_chi2*f_N_copias**2)
+    return aux1*f_d_chi2/(f_N_copias**2)
 
 
 def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
@@ -487,7 +487,7 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
         f_sigm_r_APFEL_xQ2 = f_sigm_r_APFEL[i]
         donde
         f_sigm_r_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}] '''
-    
+     
     f_sigm_r_k, f_random_list = ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias)
     
     f_chi2_k = ff_chi2_rew(f_sigm_r_k, f_sigm_r_data, f_s_sigm_r_data)
@@ -507,9 +507,9 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
     
     f_Neff    = ff_Neff(f_omega_k, f_N_copias)
     print('Neff = ', f_Neff)
-    f_penalty = ff_penalty(f_omega_k, f_random_list, f_d_chi2, f_N_copias,len(f_sigm_r_APFEL[0]))
+    f_penalty = ff_penalty(f_omega_k, f_random_list, f_N_copias, f_d_chi2,int((len(f_sigm_r_APFEL[0])-1)/2))
     print('P = ', f_penalty)
-
+    
 
     ## Save the results in a txt
     f_sigm_r_APFEL = (np.array(f_sigm_r_APFEL).T).tolist()
@@ -536,6 +536,9 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
     np.savetxt('Output_rew/Q2-x-y-SigmNew-SigmRep/'+f_file_name+'_Q2-x-y-SigmNew-SigmRep'+'_'+str(f_N_copias)+'_out.txt',f_sigm_r_APFEL)
     np.savetxt('Output_rew/SigmData/'+f_file_name+'_SigmData.txt',f_sigm_r_data)
     np.savetxt('Output_rew/s_SigmData/'+f_file_name+'_s_SigmData.txt',f_s_sigm_r_data)
-    np.savetxt('Output_rew/chi2/'+f_file_name+'_chi2.txt',f_chi2_k)
+    
+    f_random_list = np.array(f_random_list).T.tolist()
+    f_random_list.insert(0,f_chi2_k)
+    np.savetxt('Output_rew/chi2_randoms/'+f_file_name+'_chi2_randoms.txt',f_random_list)
     np.savetxt('Output_rew/Neff_P/'+f_file_name+'_Neff_P.txt',[f_Neff,f_penalty])
 

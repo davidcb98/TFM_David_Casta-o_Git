@@ -23,7 +23,7 @@ Dir_Py_File  = os.path.dirname(os.path.realpath('__file__'))
 Dir_Data_Folders = [join(Dir_Py_File,'Output_rew/Q2-x-y-SigmNew-SigmRep/'), 
                     join(Dir_Py_File,'Output_rew/SigmData/'), 
                     join(Dir_Py_File,'Output_rew/s_SigmData/'), 
-                    join(Dir_Py_File,'Output_rew/chi2'),
+                    join(Dir_Py_File,'Output_rew/chi2_randoms'),
                     join(Dir_Py_File,'Output_rew/Neff_P')]
 
 files_names_SigmNew    = [f for f in listdir(Dir_Data_Folders[0]) if isfile(join(Dir_Data_Folders[0], f))]
@@ -73,7 +73,8 @@ sigm_rep_menor_chi2_all = []
 sigm_r_APFEL_all        = []
 index_Q2_all            = []
 chi2_all                = []
-Neff_P_all              = []
+Neff_P_all              = []  # Cada lista son N_copias listas con N_eig valores
+random_list_all         = []
 
 for i in range(4):
     Q2_data, x_data, y_data, sigm_r_new, s_sigm_r_new, sigm_rep_menor_chi2, sigm_r_APFEL = mf.ff_read_output_rew(join(Dir_Data_Folders[0],files_names[i][0]))
@@ -90,7 +91,8 @@ for i in range(4):
 
     sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[1],files_names[i][1]),dtype = float).tolist())
     s_sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[2],files_names[i][2]),dtype = float).tolist())
-    chi2_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float).tolist())
+    chi2_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float)[0,:].tolist())
+    random_list_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float)[1:,:].T.tolist())
     Neff_P_all.append(np.loadtxt(join(Dir_Data_Folders[4],files_names[i][4]), dtype = float).tolist())
 
 files_names_data = []
@@ -100,13 +102,12 @@ files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_160', dt
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_5060', dtype = str).tolist())
 
 
-
 for i in range(len(sigm_r_data_all)):
     if type(sigm_r_data_all[i][0]) != list:
         sigm_r_data_all[i] = [sigm_r_data_all[i]]
         s_sigm_r_data_all[i] = [s_sigm_r_data_all[i]]
         files_names_data[i] = [files_names_data[i]]
-
+        
 
 
 #===============================================================================
@@ -155,7 +156,7 @@ for k in range(len(files_names_all)):
         plt.plot(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             sigm_rep_menor_chi2_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             'x-m', markersize = 10,
-             label = r'menor \chi^2')
+             label = r'Mayor $\chi^2$')
 
         plt.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             sigm_r_new_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
@@ -175,7 +176,7 @@ for k in range(len(files_names_all)):
                 sigm_r_data_all[which_file][l][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
                 yerr = s_sigm_r_data_all[which_file][l][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
                 fmt = '.-'+colors[l],markersize = 10,
-                label = files_names_data[k][l][:-8])
+                label = files_names_data[k][l][3:-8])
             
 
         # plt.title(str(files_names_all[which_file][:-4]))
@@ -199,5 +200,17 @@ for i in range(len(chi2_all)):
     plt.savefig('Output_rew_graf/chi2_'+str(files_names_all[i]))
     plt.close(j)
     j +=1
+#========================================================================================
+# Datos salida
+#========================================================================================
 
+file_out = open('Output_rew_graf/Datos_out.txt', 'w',encoding="utf-8")
+
+file_out.write('{0:^13} {1:^13} {2:^13} \n'.format('Files', 'Neff','Penalty'))
+
+for i in range(len(files_names_all)):
+    file_out.write('{0:13} {1:13.6f} {2:13.6f}  \n'.format(files_names_all[i], Neff_P_all[i][0], Neff_P_all[i][1]))
+    # fsalida.write('%d  %10.4f\n' % (i, np.exp(i)))
+                
+file_out.close()
 

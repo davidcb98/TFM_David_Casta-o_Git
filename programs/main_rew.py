@@ -101,7 +101,7 @@ os.makedirs('Output_rew/Q2-x-y-SigmNew-SigmRep')
 os.makedirs('Output_rew/SigmData')
 os.makedirs('Output_rew/files_names')
 os.makedirs('Output_rew/s_SigmData')
-os.makedirs('Output_rew/chi2')
+os.makedirs('Output_rew/chi2_randoms')
 os.makedirs('Output_rew/Neff_P')
 print('The directory "Output_rew" was created')
 
