@@ -20,15 +20,20 @@ import shutil as sh
 
 Dir_Py_File  = os.path.dirname(os.path.realpath('__file__'))
 
-Dir_Data_Folders = [join(Dir_Py_File,'Output_rew/Q2-x-y-SigmNew-SigmRep/'), join(Dir_Py_File,'Output_rew/SigmData/'), join(Dir_Py_File,'Output_rew/s_SigmData/'), join(Dir_Py_File,'Output_rew/chi2')]
+Dir_Data_Folders = [join(Dir_Py_File,'Output_rew/Q2-x-y-SigmNew-SigmRep/'), 
+                    join(Dir_Py_File,'Output_rew/SigmData/'), 
+                    join(Dir_Py_File,'Output_rew/s_SigmData/'), 
+                    join(Dir_Py_File,'Output_rew/chi2'),
+                    join(Dir_Py_File,'Output_rew/Neff_P')]
 
 files_names_SigmNew    = [f for f in listdir(Dir_Data_Folders[0]) if isfile(join(Dir_Data_Folders[0], f))]
 files_names_SigmData   = [f for f in listdir(Dir_Data_Folders[1]) if isfile(join(Dir_Data_Folders[1], f))]
 files_names_s_SigmData = [f for f in listdir(Dir_Data_Folders[2]) if isfile(join(Dir_Data_Folders[2], f))]
 files_names_chi2       = [f for f in listdir(Dir_Data_Folders[3]) if isfile(join(Dir_Data_Folders[3], f))]
+files_names_Neff_P     = [f for f in listdir(Dir_Data_Folders[4]) if isfile(join(Dir_Data_Folders[4], f))]
 
-files_names = [files_names_SigmNew, files_names_SigmData, files_names_s_SigmData, files_names_chi2]
-# Q2-x-y-SigmNew-SigmRep  SigmData  s_SigmData
+files_names = [files_names_SigmNew, files_names_SigmData, files_names_s_SigmData, files_names_chi2, files_names_Neff_P]
+
 
 files_lhec_160 = []
 files_lhec_760 = []
@@ -68,6 +73,7 @@ sigm_rep_menor_chi2_all = []
 sigm_r_APFEL_all        = []
 index_Q2_all            = []
 chi2_all                = []
+Neff_P_all              = []
 
 for i in range(4):
     Q2_data, x_data, y_data, sigm_r_new, s_sigm_r_new, sigm_rep_menor_chi2, sigm_r_APFEL = mf.ff_read_output_rew(join(Dir_Data_Folders[0],files_names[i][0]))
@@ -85,6 +91,7 @@ for i in range(4):
     sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[1],files_names[i][1]),dtype = float).tolist())
     s_sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[2],files_names[i][2]),dtype = float).tolist())
     chi2_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float).tolist())
+    Neff_P_all.append(np.loadtxt(join(Dir_Data_Folders[4],files_names[i][4]), dtype = float).tolist())
 
 files_names_data = []
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_lhec_160', dtype = str).tolist())
@@ -99,6 +106,8 @@ for i in range(len(sigm_r_data_all)):
         sigm_r_data_all[i] = [sigm_r_data_all[i]]
         s_sigm_r_data_all[i] = [s_sigm_r_data_all[i]]
         files_names_data[i] = [files_names_data[i]]
+
+
 
 #===============================================================================
 # Directory to save plots
@@ -124,9 +133,11 @@ j = 0
 colors = ['b','g','c','m','y','r','k'] # k, r
 for k in range(len(files_names_all)):
     which_file = k
+    print('\n ====================================')
     print(' Data File: ')
     print(files_names_all[which_file])
-    
+    print('Neff = ', Neff_P_all[which_file][0], ' P = ', Neff_P_all[which_file][1])
+
     # print(sigm_r_APFEL_all[which_file])
     # input('Press enter to continue')
 
@@ -182,7 +193,7 @@ for k in range(len(files_names_all)):
 for i in range(len(chi2_all)):
     plt.figure(j)
     plt.title(str(files_names_all[i]))
-    plt.hist(chi2_all[i],bins = 20)
+    plt.hist(chi2_all[i],bins = 100)
     plt.xlabel(r'\chi^2')
     plt.tight_layout()
     plt.savefig('Output_rew_graf/chi2_'+str(files_names_all[i]))

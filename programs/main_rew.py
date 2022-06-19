@@ -102,6 +102,7 @@ os.makedirs('Output_rew/SigmData')
 os.makedirs('Output_rew/files_names')
 os.makedirs('Output_rew/s_SigmData')
 os.makedirs('Output_rew/chi2')
+os.makedirs('Output_rew/Neff_P')
 print('The directory "Output_rew" was created')
 
 
@@ -109,6 +110,8 @@ N_copias = 10000
 d_chi2 = 10       # Tolerance
 
 for i in range(len(files_names_aux)):
+    print('\n')
+    print('=========================================')
     print(files_names_aux[i])
     mf.ff_reweighting(Q2_data_cut[i]    , x_data_cut[i]       , y_data_cut[i]      , files_names_aux[i],
                       sigm_r_data_cut[i], s_sigm_r_data_cut[i], sigm_r_APFEL_cut[i], N_copias , d_chi2)
@@ -117,3 +120,4 @@ np.savetxt('Output_rew/files_names/'+'files_lhec_160',files_lhec_160, fmt="%s")
 np.savetxt('Output_rew/files_names/'+'files_lhec_760',files_lhec_760, fmt="%s")
 np.savetxt('Output_rew/files_names/'+'files_fcc_160',files_fcc_720, fmt="%s")
 np.savetxt('Output_rew/files_names/'+'files_fcc_5060',files_fcc_5060, fmt="%s")
+

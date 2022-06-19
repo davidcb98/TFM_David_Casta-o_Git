@@ -360,33 +360,33 @@ def ff_sigm_r_k_xQ2_aux(f_sigma, f_random_list):
         j +=1
     return aux
 
-def ff_sigm_r_k_xQ2(f_sigm_r_APFEL_xQ2,f_random_list,f_N_rep): # f_seed
+def ff_sigm_r_k_xQ2(f_sigm_r_APFEL_xQ2,f_random_list,f_N_copias): # f_seed
     '''
     Genera N_rep replicas de las sigma a partir de los 2N+1 valores 
     de f_sigms_APFEL_xQ2. Estos 2N+1 valores son para un punto (x,Q2).
     
-    f_sigms_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}]
+    f_sigm_r_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}]
     '''
     # rd.seed(f_seed)
-    f_sigm_r_k_xQ2 = [f_sigm_r_APFEL_xQ2[0] + ff_sigm_r_k_xQ2_aux(f_sigm_r_APFEL_xQ2, f_random_list[i])  for i in range(f_N_rep)]
+    f_sigm_r_k_xQ2 = [f_sigm_r_APFEL_xQ2[0] + ff_sigm_r_k_xQ2_aux(f_sigm_r_APFEL_xQ2, f_random_list[i])  for i in range(f_N_copias)]
     return f_sigm_r_k_xQ2
 
-def ff_sigm_r_k(f_sigm_r_APFEL, f_N_rep):
+def ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias):
     '''
     - Input:
         Cada elemento de f_sigms_APFEL es una lista con los 2N+1 valores de las 
         secciones eficaces para cada valor de (x,Q2), esto es:
-            f_sigms_APFEL_xQ2 = f_sigms_APFEL[i]
+            f_sigm_r_APFEL_xQ2 = f_sigm_r_APFEL[i]
         donde 
-            f_sigms_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}]
+            f_sigm_r_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}]
 
     - Output:
         Cada elemento de f_sigm_r_k es una lista con f_N_rep valores (replicas) para cada valor
         de (x,Q2), es decir, cada una de estas listas es para un (x,Q2) particular
     '''
-    f_random_list = [[rd.gauss(0,1) for i in range(len(f_sigm_r_APFEL[0]))] for j in range(f_N_rep)]
-    f_sigm_r_k = [ff_sigm_r_k_xQ2(f_sigm_r_APFEL[i], f_random_list, f_N_rep) for i in range(len(f_sigm_r_APFEL))]
-    return f_sigm_r_k
+    f_random_list = [[rd.gauss(0,1) for i in range(len(f_sigm_r_APFEL[0]))] for j in range(f_N_copias)]
+    f_sigm_r_k = [ff_sigm_r_k_xQ2(f_sigm_r_APFEL[i], f_random_list, f_N_copias) for i in range(len(f_sigm_r_APFEL))]
+    return f_sigm_r_k, f_random_list
 
 def ff_chi2_rew_aux(f_sigm_r_k_i,f_sigm_exp, f_s_sigm_exp):
 
@@ -419,7 +419,7 @@ def ff_chi2_rew(f_sigm_r_k, f_sigm_exp, f_s_sigm_exp): ## f_s_sigm_exp = etot
                 for i in range(len(f_sigm_r_k[0]))]
     return f_chi2_k 
 
-def ff_omega_k(f_chi2_k, f_d_chi2,f_N_rep,f_N_data):
+def ff_omega_k(f_chi2_k, f_d_chi2,f_N_copias):
     ''' - Output:
             f_omega_k es una lista con f_N_rep valores, uno por replica. '''
     f_aux = 0
@@ -431,78 +431,90 @@ def ff_omega_k(f_chi2_k, f_d_chi2,f_N_rep,f_N_data):
 
     # f_omega_k = [f_chi2_k[i]**((f_N_data-1)/2)*np.exp(- f_chi2_k[i]/(2*f_d_chi2), dtype = np.float128)*f_N_rep/f_aux  
     #             for i in range(len(f_chi2_k))] 
-    f_omega_k = [np.exp(- f_chi2_k[i]/(2*f_d_chi2), dtype = np.float128)*f_N_rep/f_aux
+    f_omega_k = [np.exp(- f_chi2_k[i]/(2*f_d_chi2), dtype = np.float128)*f_N_copias/f_aux
                  for i in range(len(f_chi2_k))]
 
     return f_omega_k 
    
-def ff_sigm_r_new_aux(f_sigm_r_k_i, f_omega_k, f_N_rep):
-    f_sigm_r_new_i = sum(np.array(f_sigm_r_k_i)*np.array(f_omega_k))/f_N_rep
+def ff_sigm_r_new_aux(f_sigm_r_k_i, f_omega_k, f_N_copias):
+    f_sigm_r_new_i = sum(np.array(f_sigm_r_k_i)*np.array(f_omega_k))/f_N_copias
     return f_sigm_r_new_i
 
-def ff_sigm_r_new(f_sigm_r_k, f_omega_k, f_N_rep):
-    f_sigm_r_new = [ ff_sigm_r_new_aux(f_sigm_r_k[i], f_omega_k,f_N_rep) 
+def ff_sigm_r_new(f_sigm_r_k, f_omega_k, f_N_copias):
+    f_sigm_r_new = [ ff_sigm_r_new_aux(f_sigm_r_k[i], f_omega_k,f_N_copias) 
             for i in range(len(f_sigm_r_k))]
     return f_sigm_r_new
 
-def ff_s_sigm_r_new_aux(f_sigm_r_k_i, f_sigm_r_new_i, f_omega_k, f_N_rep):
+def ff_s_sigm_r_new_aux(f_sigm_r_k_i, f_sigm_r_new_i, f_omega_k, f_N_copias):
     #print(f_sigm_r_k_i)
     #print(f_sigm_r_new_i)
     #input('Press enter to continue')
-    f_s_sigm_r_new_i = np.sqrt(sum(np.array(f_omega_k)*(np.array(f_sigm_r_k_i) - np.array([f_sigm_r_new_i for i in range(len(f_sigm_r_k_i))]))**2)/f_N_rep)
+    f_s_sigm_r_new_i = np.sqrt(sum(np.array(f_omega_k)*(np.array(f_sigm_r_k_i) - np.array([f_sigm_r_new_i for i in range(len(f_sigm_r_k_i))]))**2)/f_N_copias)
     return f_s_sigm_r_new_i
 
-def ff_s_sigm_r_new(f_sigm_r_k,f_sigm_r_new,f_omega_k,f_N_rep):
-    f_s_sigm_r_new = [ ff_s_sigm_r_new_aux(f_sigm_r_k[i],f_sigm_r_new[i] , f_omega_k,f_N_rep)
+def ff_s_sigm_r_new(f_sigm_r_k,f_sigm_r_new,f_omega_k,f_N_copias):
+    f_s_sigm_r_new = [ ff_s_sigm_r_new_aux(f_sigm_r_k[i],f_sigm_r_new[i] , f_omega_k,f_N_copias)
                         for i in range(len(f_sigm_r_k))]
     return f_s_sigm_r_new
+    
+def ff_Neff(f_omega_k,f_N_copias):
+    aux = 0
+    for i in range(f_N_copias):
+        aux += f_omega_k[i] * np.log(f_N_copias/f_omega_k[i])
+    aux = aux/f_N_copias
+    return np.exp(aux)
+
+def ff_penalty(f_omega_k, f_random_list, f_N_copias, f_d_chi2 ,f_N_eig):
+    
+    aux1 = 0
+    for i in range(f_N_eig):
+    
+        aux2 = 0
+        for k in range(f_N_copias):
+            aux2 += f_omega_k[k] * f_random_list[k][i]
+        
+        aux1 += aux2**2
+    
+    return aux1/(f_d_chi2*f_N_copias**2)
+
+
 def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
                    f_s_sigm_r_data, f_sigm_r_APFEL, f_N_copias, f_d_chi2):
     '''
     sigm_r_APFEL
         Cada elemento de sigms_APFEL es una lista con los 2N+1 valores de las
         secciones eficaces para cada valor de (x,Q2), esto es:
-        f_sigms_APFEL_xQ2 = f_sigms_APFEL[i]
+        f_sigm_r_APFEL_xQ2 = f_sigm_r_APFEL[i]
         donde
-        f_sigms_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}] '''
+        f_sigm_r_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}] '''
     
-    # f_sigm_r_data = (np.array(f_sigm_r_APFEL)[:,:1].T).tolist()
-    # print(f_sigm_r_data)
-    f_sigm_r_k = ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias)
-    # p#rint(np.array(sigm_r_k)[:,0])
-    # input('Press enter to continue')
-
+    f_sigm_r_k, f_random_list = ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias)
+    
     f_chi2_k = ff_chi2_rew(f_sigm_r_k, f_sigm_r_data, f_s_sigm_r_data)
     print('Minimo valor de chi^2: ', min(f_chi2_k))
-    #input('Press enter to continue')
 
-    f_N_data = len(f_sigm_r_data)*len(f_sigm_r_data[0])
+    # f_N_data = len(f_sigm_r_data)*len(f_sigm_r_data[0])
     ###### f_omega_k = [1 for i in range(len(f_chi2_k))]
-    f_omega_k = ff_omega_k(f_chi2_k, f_d_chi2, f_N_copias, f_N_data)
-    # print(f_omega_k)
-    # input('Press enter to continue')
+    f_omega_k = ff_omega_k(f_chi2_k, f_d_chi2, f_N_copias)
 
     f_sigm_r_new = ff_sigm_r_new(f_sigm_r_k, f_omega_k, f_N_copias)
-    # print(np.array(f_sigm_r_new)- np.array(sigm_r_data))   
-    # print(f_sigm_r_new) 
+    
     print('Numero de punto (x,Q^2): ', len(f_sigm_r_new))
     print('Numero de pseudo datos: ', len(f_sigm_r_data)*len(f_sigm_r_data[0]))
-    print('Pesos: min:',f_omega_k[np.argmin(f_chi2_k)], 'max: ', f_omega_k[np.argmax(f_chi2_k)])
+    print('Pesos: min_chi2:',f_omega_k[np.argmin(f_chi2_k)], '||  max_chi2: ', f_omega_k[np.argmax(f_chi2_k)])
 
     f_s_sigm_r_new = ff_s_sigm_r_new(f_sigm_r_k, f_sigm_r_new, f_omega_k, f_N_copias)
-    # print(f_s_sigm_r_new)
+    
+    f_Neff    = ff_Neff(f_omega_k, f_N_copias)
+    print('Neff = ', f_Neff)
+    f_penalty = ff_penalty(f_omega_k, f_random_list, f_d_chi2, f_N_copias,len(f_sigm_r_APFEL[0]))
+    print('P = ', f_penalty)
+
 
     ## Save the results in a txt
     f_sigm_r_APFEL = (np.array(f_sigm_r_APFEL).T).tolist()
-    # print(f_sigm_r_APFEL[0])
-    # input('Press enter to continue')
-    
-    # print(np.argmin(f_chi2_k))
-    # print(f_chi2_k[np.argmin(f_chi2_k)])
-    # print(np.array(f_sigm_r_k).T.tolist()[np.argmin(f_chi2_k)])
-    # input('Press enter to contiue')
 
-    f_sigm_r_APFEL.insert(0,np.array(f_sigm_r_k).T.tolist()[np.argmin(f_chi2_k)])
+    f_sigm_r_APFEL.insert(0,np.array(f_sigm_r_k).T.tolist()[np.argmax(f_chi2_k)])
     f_sigm_r_APFEL.insert(0,f_s_sigm_r_new)
     f_sigm_r_APFEL.insert(0,f_sigm_r_new)
     f_sigm_r_APFEL.insert(0,f_y_data)
@@ -514,7 +526,9 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
         Q2
         x
         y
-        sigr_new
+        sigm_r_new
+        s_sigm_r_new
+        sigm_r_APFEL[replica menos chi2]
         sigma replica 0
         sigma replica 1
         ...... 
@@ -523,5 +537,5 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
     np.savetxt('Output_rew/SigmData/'+f_file_name+'_SigmData.txt',f_sigm_r_data)
     np.savetxt('Output_rew/s_SigmData/'+f_file_name+'_s_SigmData.txt',f_s_sigm_r_data)
     np.savetxt('Output_rew/chi2/'+f_file_name+'_chi2.txt',f_chi2_k)
-
+    np.savetxt('Output_rew/Neff_P/'+f_file_name+'_Neff_P.txt',[f_Neff,f_penalty])
 
