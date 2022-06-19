@@ -7,11 +7,10 @@ import matplotlib.pyplot as plt
 import os #os.system("pause")
 from os import listdir
 from os.path import isfile, join
+import sys
 
+import shutil as sh
 import My_Functions as mf
-    
-
- 
 
 #=======================================================================================
 #========================= Cargamos los datos del fichero ==============================
@@ -31,12 +30,6 @@ files_names_fcc = [f for f in listdir(Dir_Data_Folder_fcc) if isfile(join(Dir_Da
 files_names_lhec = [f for f in listdir(Dir_Data_Folder_lhec) if isfile(join(Dir_Data_Folder_lhec, f))]
 files_names_all = files_names_fcc + files_names_lhec
  
-# DataInfo_labels, DataInfo, Q2_data, x_data, y_data, F2_data, sigrNC_data = frd.ff_read_datfcc(join(Dir_Data_Folder_fcc,files_names_fcc[0]))
-
-# DataInfo_labels, DataInfo, Q2_data, x_data, y_data, F2_data, sigrNC_data = frd.ff_read_datlhec(join(Dir_Data_Folder_lhec,files_names_lhec[0]))
-# DataInfo_labels = ['sqrt(s)','e charge','reduced','e polarity']
-
-
 ## we load the data
 
 DataInfo_labels_all = []  #  [Ep, Ee, eCharge, ePol, Lumifb, lhapdf, NC, CC, itarg, erunco]
@@ -87,7 +80,21 @@ for i in range(len(files_names_lhec)):
     index_Q2_all.append(mf.ff_index_Qs(Q2_data))
 
 print('Read succesfull')
-input('Press enter to continue')
+# input('Press enter to continue')
+
+## Output Folder
+if os.path.exists('Output_APFEL'):
+    print('You are going to delate the directory "Output_APFEL" ')
+    Yes_or_No = input('Are you sure? (Type Y to continue) ')
+    if Yes_or_No == 'Y':
+        sh.rmtree('Output_APFEL')
+        print('The directory "Output_APFEL" was deleted')
+    else:
+        sys.exit('Error, you decided not to delete the directory')
+
+os.makedirs('Output_APFEL')
+
+
 
 # Parameter from the bibliografi of the PDF set
 PDFSet = 'PDF4LHC21_40'
@@ -95,8 +102,6 @@ x_min_LHC21 = 0.101563e-05
 Q_0_LHC21   = 0.140010e+01
 replicas    = 41
 
-# print(files_names_all)
-# value_imput = int(input())
 for k in range(len(files_names_all)): #[value_imput]:#range(len(files_names_all)):
     which_file = k
     print(' Data File: ')
@@ -118,4 +123,4 @@ for k in range(len(files_names_all)): #[value_imput]:#range(len(files_names_all)
 
 
 
-os.system("shutdown.exe /h") # Hiberna el ordenador al acabar
+# os.system("shutdown.exe /h") # Hiberna el ordenador al acabar
