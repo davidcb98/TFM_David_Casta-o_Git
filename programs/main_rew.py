@@ -28,7 +28,7 @@ files_fcc_5060 = []
 
 #print(files_names_all)
 #for i in range(len(files_names_all)):
-#    print(files_names_all[i][len(files_names_all[i])-14:len(files_names_all[i])-8])
+#    print(files_names_all[i]
 #input()
 
 
@@ -116,6 +116,42 @@ for i in range(len(files_names_aux)):
     mf.ff_reweighting(Q2_data_cut[i]    , x_data_cut[i]       , y_data_cut[i]      , files_names_aux[i],
                       sigm_r_data_cut[i], s_sigm_r_data_cut[i], sigm_r_APFEL_cut[i], N_copias , d_chi2)
 
+
+files_lhec_160 = []
+files_lhec_760 = []
+files_fcc_720  = []
+files_fcc_5060 = []
+
+
+for i in range(len(files_names_all)):
+    if files_names_all[i][:7] == 'datlhec':
+        if files_names_all[i][len(files_names_all[i])-14:len(files_names_all[i])-8] == 'random':
+            if files_names_all[i][7] == '1':
+                files_lhec_160.append(r'NC_$e^{-}$_$p=0$')
+            else:
+                if files_names_all[i][10:14] == 'ncem':
+                    files_lhec_760.append(r'NC_$e^{-}$_$p<0$')
+                elif files_names_all[i][10:15] == 'ncepp':
+                    files_lhec_760.append(r'NC_$e^{+}$_$p=0$')
+                else:
+                    files_lhec_760.append(r'NC_$e^{-}$_$p>0$')
+    else:
+        if files_names_all[i][len(files_names_all[i])-14:len(files_names_all[i])-8] == 'random':
+            if files_names_all[i][6] == '7':
+                files_fcc_720.append(r'NC_$e^{-}$_$p=0$')
+            else:
+                if files_names_all[i][10:14] == 'ncem':
+                    files_fcc_5060.append(r'NC_$e^{-}$_$p<0$')
+                elif files_names_all[i][10:15] == 'ncepp':
+                    files_fcc_5060.append(r'NC_$e^{+}$_$p=0$')
+                else:
+                    files_fcc_5060.append(r'NC_$e^{-}$_$p>0$')
+'''
+print(files_lhec_160)
+print(files_lhec_760)
+print(files_fcc_720)
+print(files_fcc_5060)
+'''
 np.savetxt('Output_rew/files_names/'+'files_lhec_160',files_lhec_160, fmt="%s")
 np.savetxt('Output_rew/files_names/'+'files_lhec_760',files_lhec_760, fmt="%s")
 np.savetxt('Output_rew/files_names/'+'files_fcc_160',files_fcc_720, fmt="%s")

@@ -60,40 +60,61 @@ print(files_fcc_5060)
 input('Press enter to continue')
 '''
 files_names = [files_lhec_160, files_lhec_760, files_fcc_720, files_fcc_5060]
-files_names_all   = ['LHeC_160', 'LHeC_720','FCC_720','FCC_5060']
+files_names_all   = ['LHeC_160', 'LHeC_760','FCC_720','FCC_5060']
 
 Q2_data_all             = []
 x_data_all              = []
 y_data_all              = []
-sigm_r_data_all         = []
-s_sigm_r_data_all       = []
+
+sigm_r_ones_all         = []
+s_sigm_r_ones_all       = []
+
 sigm_r_new_all          = []
 s_sigm_r_new_all        = []
+
 sigm_rep_menor_chi2_all = []
 sigm_r_APFEL_all        = []
+
+sigm_r_data_all         = []
+s_sigm_r_data_all       = []
+
 index_Q2_all            = []
+
 chi2_all                = []
+chi2_pesados_all        = []
+
 Neff_P_all              = []  # Cada lista son N_copias listas con N_eig valores
 random_list_all         = []
 
-for i in range(4):
-    Q2_data, x_data, y_data, sigm_r_new, s_sigm_r_new, sigm_rep_menor_chi2, sigm_r_APFEL = mf.ff_read_output_rew(join(Dir_Data_Folders[0],files_names[i][0]))
+for i in range(len(files_names)):
+    data = mf.ff_read_output_rew(join(Dir_Data_Folders[0],files_names[i][0]))
 
-    Q2_data_all.append(Q2_data)
-    x_data_all.append(x_data)
-    y_data_all.append(y_data)
-    sigm_r_new_all.append(sigm_r_new)
-    s_sigm_r_new_all.append(s_sigm_r_new)
-    sigm_r_APFEL_all.append(sigm_r_APFEL)
-    sigm_rep_menor_chi2_all.append(sigm_rep_menor_chi2)
+    Q2_data_all.append(data[0])
+    x_data_all.append(data[1])
+    y_data_all.append(data[2])
+    
+    sigm_r_ones_all.append(data[3])
+    s_sigm_r_ones_all.append(data[4])
+   
+    sigm_r_new_all.append(data[5])
+    s_sigm_r_new_all.append(data[6])
+    
+    sigm_rep_menor_chi2_all.append(data[7])
+    sigm_r_APFEL_all.append(data[8])
 
-    index_Q2_all.append(mf.ff_index_Qs(Q2_data))
+    index_Q2_all.append(mf.ff_index_Qs(data[0]))
 
     sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[1],files_names[i][1]),dtype = float).tolist())
+    
     s_sigm_r_data_all.append(np.loadtxt(join(Dir_Data_Folders[2],files_names[i][2]),dtype = float).tolist())
+    
     chi2_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float)[0,:].tolist())
-    random_list_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float)[1:,:].T.tolist())
+    chi2_pesados_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float)[1,:].tolist())
+    random_list_all.append(np.loadtxt(join(Dir_Data_Folders[3],files_names[i][3]),dtype = float)[2:,:].T.tolist())
+    
     Neff_P_all.append(np.loadtxt(join(Dir_Data_Folders[4],files_names[i][4]), dtype = float).tolist())
+
+
 
 files_names_data = []
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_lhec_160', dtype = str).tolist())
@@ -102,10 +123,13 @@ files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_160', dt
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_5060', dtype = str).tolist())
 
 
+
+print(files_names_data)
 for i in range(len(sigm_r_data_all)):
     if type(sigm_r_data_all[i][0]) != list:
         sigm_r_data_all[i] = [sigm_r_data_all[i]]
         s_sigm_r_data_all[i] = [s_sigm_r_data_all[i]]
+        
         files_names_data[i] = [files_names_data[i]]
         
 
@@ -148,21 +172,30 @@ for k in range(len(files_names_all)):
         # Plots
         plt.figure(j)
 
-        plt.plot(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+        fig, ax = plt.subplots()
+
+        ax.plot(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             sigm_r_APFEL_all[which_file][0][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
-            'x-r', markersize = 10,
-            label = 'APFEL')
+            'x-m', markersize = 10,
+            label = r'APFEL $\sigma_0$')
         
+        ax.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+            sigm_r_ones_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+            yerr = s_sigm_r_ones_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+            fmt = '.-r', markersize = 10,
+            label = r'$\omega_k = 1$')
+        '''
         plt.plot(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             sigm_rep_menor_chi2_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             'x-m', markersize = 10,
              label = r'Mayor $\chi^2$')
+        '''
 
-        plt.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+        ax.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             sigm_r_new_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             yerr = s_sigm_r_new_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
             fmt = '.-k', markersize = 10,
-            label = 'reweighting')
+            label = r'Reweighting')
 
         
         '''    
@@ -172,44 +205,66 @@ for k in range(len(files_names_all)):
             label = 'reweighting')
         '''
         for l in range(len(sigm_r_data_all[which_file])):
-            plt.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
+            ax.errorbar(x_data_all[which_file][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
                 sigm_r_data_all[which_file][l][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
                 yerr = s_sigm_r_data_all[which_file][l][index_Q2_all[which_file][i]:index_Q2_all[which_file][i+1]],
                 fmt = '.-'+colors[l],markersize = 10,
-                label = files_names_data[k][l][3:-8])
+                label = files_names_data[k][l])
             
 
         # plt.title(str(files_names_all[which_file][:-4]))
 
         plt.xscale('log')
-        plt.legend(loc = 'best')
-        plt.title('Q^2 = ' + str(Q2) + 'GeV')
-        plt.xlabel('x')
-        plt.ylabel('sigma_r')
+        plt.legend(loc = 'best', fontsize = 16)
+        plt.title(r'$Q^2$ = ' + str(Q2) + r' GeV', fontsize = 17)
+        plt.xlabel(r'x',fontsize = 18)
+        plt.ylabel(r'$\sigma_r$', fontsize = 19)
+        plt.xticks(fontsize = 19)        
+               
+        if files_names_all[which_file] == 'LHeC_160' and Q2 == 500:
+            print('yep')
+
+            plt.xscale('log')
+            ax.xaxis.set_major_locator(plt.MaxNLocator(4))
+            plt.xticks(fontsize = 19)
+            #plt.xticks(fontsize = 40)
+        
+        plt.yticks(fontsize = 19)
+       
         plt.tight_layout()
-        plt.savefig('Output_rew_graf/Fig_Q2_'+str(int(Q2))+'_'+str(files_names_all[which_file]))
+        plt.savefig('Output_rew_graf/Fig_'+str(files_names_all[which_file])+'_Q2_'+str(int(Q2)))
         plt.close(j) 
         j += 1
 
+
 for i in range(len(chi2_all)):
+    print('Max chi2 pesado: ', max(chi2_pesados_all[i]))
     plt.figure(j)
+    fig, ax = plt.subplots()
     plt.title(str(files_names_all[i]))
-    plt.hist(chi2_all[i],bins = 100)
-    plt.xlabel(r'\chi^2')
+    plt.hist(chi2_all[i],bins = 100, label = r'Sin pesar')
+    plt.hist(chi2_pesados_all[i], bins = 10, label = r'Pesados')
+    plt.xlabel(r'$\chi^2$',fontsize = 17)
+    plt.yscale('log')
+    plt.legend(loc = 'best', fontsize = 16)
     plt.tight_layout()
+
     plt.savefig('Output_rew_graf/chi2_'+str(files_names_all[i]))
     plt.close(j)
     j +=1
+
 #========================================================================================
 # Datos salida
 #========================================================================================
 
 file_out = open('Output_rew_graf/Datos_out.txt', 'w',encoding="utf-8")
 
-file_out.write('{0:^13} {1:^13} {2:^13} \n'.format('Files', 'Neff','Penalty'))
+file_out.write('{0:^13} {1:^13} {2:^13} {3:^13} {4:^13} \n'
+        .format('Files', 'Neff','Penalty',r'min($\chi^2$)',r'max($\chi^2_{weig}$)'))
 
 for i in range(len(files_names_all)):
-    file_out.write('{0:13} {1:13.6f} {2:13.6f}  \n'.format(files_names_all[i], Neff_P_all[i][0], Neff_P_all[i][1]))
+    file_out.write('{0:13} {1:13.6f} {2:13.6f} {3:13.6f} {4:13.6f}  \n'
+            .format(files_names_all[i], Neff_P_all[i][0], Neff_P_all[i][1],min(chi2_all[i]),max(chi2_pesados_all[i])))
     # fsalida.write('%d  %10.4f\n' % (i, np.exp(i)))
                 
 file_out.close()

@@ -149,13 +149,18 @@ def ff_read_output_rew(file_name):
     f_Q2_data             = f_data[0,:].tolist()
     f_x_data              = f_data[1,:].tolist()
     f_y_data              = f_data[2,:].tolist()
-    f_sigm_r_rew          = f_data[3,:].tolist()
-    f_s_sigm_r_new        = f_data[4,:].tolist()
-    f_sigm_rep_menor_chi2 = f_data[5,:].tolist()
-    f_sigm_r_APFEL        = f_data[6:,:].tolist()
+    
+    f_sigm_r_ones         = f_data[3,:].tolist()
+    f_s_sigm_r_ones       = f_data[4,:].tolist()
+    
+    f_sigm_r_rew          = f_data[5,:].tolist()
+    f_s_sigm_r_new        = f_data[6,:].tolist()
+    
+    f_sigm_rep_menor_chi2 = f_data[7,:].tolist()
+    f_sigm_r_APFEL        = f_data[8:,:].tolist()
     # print(len(f_sigm_r_APFEL))
  
-    return f_Q2_data, f_x_data, f_y_data, f_sigm_r_rew, f_s_sigm_r_new, f_sigm_rep_menor_chi2, f_sigm_r_APFEL
+    return [f_Q2_data, f_x_data, f_y_data,f_sigm_r_ones, f_s_sigm_r_ones, f_sigm_r_rew, f_s_sigm_r_new, f_sigm_rep_menor_chi2, f_sigm_r_APFEL]
 
 
 
@@ -493,18 +498,21 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
     f_chi2_k = ff_chi2_rew(f_sigm_r_k, f_sigm_r_data, f_s_sigm_r_data)
     print('Minimo valor de chi^2: ', min(f_chi2_k))
 
-    # f_N_data = len(f_sigm_r_data)*len(f_sigm_r_data[0])
-    ###### f_omega_k = [1 for i in range(len(f_chi2_k))]
+    #f_N_data = len(f_sigm_r_data)*len(f_sigm_r_data[0])
+    f_omega_k_ones = [1 for i in range(len(f_chi2_k))]
     f_omega_k = ff_omega_k(f_chi2_k, f_d_chi2, f_N_copias)
 
+    f_sigm_r_ones = ff_sigm_r_new(f_sigm_r_k, f_omega_k_ones, f_N_copias)
     f_sigm_r_new = ff_sigm_r_new(f_sigm_r_k, f_omega_k, f_N_copias)
-    
+
     print('Numero de punto (x,Q^2): ', len(f_sigm_r_new))
     print('Numero de pseudo datos: ', len(f_sigm_r_data)*len(f_sigm_r_data[0]))
     print('Pesos: min_chi2:',f_omega_k[np.argmin(f_chi2_k)], '||  max_chi2: ', f_omega_k[np.argmax(f_chi2_k)])
 
+    f_s_sigm_r_ones = ff_s_sigm_r_new(f_sigm_r_k, f_sigm_r_ones, f_omega_k_ones, f_N_copias)
     f_s_sigm_r_new = ff_s_sigm_r_new(f_sigm_r_k, f_sigm_r_new, f_omega_k, f_N_copias)
     
+
     f_Neff    = ff_Neff(f_omega_k, f_N_copias)
     print('Neff = ', f_Neff)
     f_penalty = ff_penalty(f_omega_k, f_random_list, f_N_copias, f_d_chi2,int((len(f_sigm_r_APFEL[0])-1)/2))
@@ -517,6 +525,8 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
     f_sigm_r_APFEL.insert(0,np.array(f_sigm_r_k).T.tolist()[np.argmax(f_chi2_k)])
     f_sigm_r_APFEL.insert(0,f_s_sigm_r_new)
     f_sigm_r_APFEL.insert(0,f_sigm_r_new)
+    f_sigm_r_APFEL.insert(0,f_s_sigm_r_ones)
+    f_sigm_r_APFEL.insert(0,f_sigm_r_ones)
     f_sigm_r_APFEL.insert(0,f_y_data)
     f_sigm_r_APFEL.insert(0,f_x_data)
     f_sigm_r_APFEL.insert(0,f_Q2_data)
@@ -538,7 +548,9 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
     np.savetxt('Output_rew/s_SigmData/'+f_file_name+'_s_SigmData.txt',f_s_sigm_r_data)
     
     f_random_list = np.array(f_random_list).T.tolist()
+    f_random_list.insert(0,np.array(f_chi2_k)*np.array(f_omega_k)/f_N_copias)
     f_random_list.insert(0,f_chi2_k)
+
     np.savetxt('Output_rew/chi2_randoms/'+f_file_name+'_chi2_randoms.txt',f_random_list)
     np.savetxt('Output_rew/Neff_P/'+f_file_name+'_Neff_P.txt',[f_Neff,f_penalty])
 
