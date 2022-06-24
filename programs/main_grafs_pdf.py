@@ -184,39 +184,6 @@ flavs_labels = [r'u', r'$\bar{u}$', r'g']
 
 # Compute the value of xf(x,Q^2) for each flavour with the 41 replicas os PDF4LHC21
 
-def ff_rew_xf(f_Q2_data, f_x_data, f_pdfsets, f_flav, f_random_list, f_chi2_k, f_d_chi2, f_N_copias):
-    '''
-    xf_LHAPDF_flav_i 
-        Cada elemento de sigms_APFEL es una lista con los 2N_{eig}+1 valores de las
-        secciones eficaces para cada valor de (x,Q2), esto es:
-        xf_LHAPDF_flav_i_xQ2 = xf_LHAPDF_flav_i[j]
-        donde
-        xf_LHAPDF_flav_i_xQ2 = [xf_0, xf_{+1}, xf_{-1},...., xf_{+N}, xf_{-N}]  '''
-
-    # Generate de 2N_{eig}+1 replicas of xf
-    f_xf_LHAPDF_flav = []
-    for j in range(len(f_x_data)):
-            
-        f_xf_LHAPDF_flav_xQ2 = []
-        for pdfset in pdfsets:
-
-            f_xf_LHAPDF_flav_xQ2.append(pdfset.xfxQ2(f_flav, f_x_data[j], f_Q2_data[j]))
-            
-        f_xf_LHAPDF_flav.append(f_xf_LHAPDF_flav_xQ2)
-
-    # Generate de N_copias from the 2N_{eig}+1 replicas of xf
-    # We use the same functions as for the sigmas in the reweighting
-    f_xf_k = mf.ff_sigm_r_k(f_xf_LHAPDF_flav, f_random_list ,f_N_copias)
-
-    f_omega_k_ones = [1 for i in range(len(f_chi2_k))]
-    f_omega_k      = mf.ff_omega_k(f_chi2_k, f_d_chi2, f_N_copias)
-
-    f_xf_ones = mf.ff_sigm_r_new(f_xf_k, f_omega_k_ones, f_N_copias)
-    f_xf_new  = mf.ff_sigm_r_new(f_xf_k, f_omega_k     , f_N_copias)
-    
-    return f_xf_ones, f_xf_new
-    
-
 xf_ones_all = [] # xf_ones_all[flav][file]
 xf_new_all  = [] # xf_new_all[flav][file]
 
@@ -227,7 +194,7 @@ for flav in flavs:
     xf_new_flav_all      = []
     for i in range(len(files_names_all)):
         print('Flavour: ',flav,'|| File: ', files_names_all[i])
-        xf_ones, xf_new = ff_rew_xf(Q2_data_all[i], x_data_all[i], pdfsets, flav, random_list_all[i], chi2_all[i] , d_chi2, N_copias)
+        xf_ones, xf_new = mf.ff_rew_xf(Q2_data_all[i], x_data_all[i], pdfsets, flav, random_list_all[i], chi2_all[i] , d_chi2, N_copias)
         
         xf_ones_flav_all.append(xf_ones)
         xf_new_flav_all.append(xf_new)
