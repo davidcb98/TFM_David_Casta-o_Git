@@ -376,7 +376,7 @@ def ff_sigm_r_k_xQ2(f_sigm_r_APFEL_xQ2,f_random_list,f_N_copias): # f_seed
     f_sigm_r_k_xQ2 = [f_sigm_r_APFEL_xQ2[0] + ff_sigm_r_k_xQ2_aux(f_sigm_r_APFEL_xQ2, f_random_list[i])  for i in range(f_N_copias)]
     return f_sigm_r_k_xQ2
 
-def ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias):
+def ff_sigm_r_k(f_sigm_r_APFEL, f_random_list, f_N_copias):
     '''
     - Input:
         Cada elemento de f_sigms_APFEL es una lista con los 2N+1 valores de las 
@@ -389,9 +389,9 @@ def ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias):
         Cada elemento de f_sigm_r_k es una lista con f_N_rep valores (replicas) para cada valor
         de (x,Q2), es decir, cada una de estas listas es para un (x,Q2) particular
     '''
-    f_random_list = [[rd.gauss(0,1) for i in range(int((len(f_sigm_r_APFEL[0])-1)/2))] for j in range(f_N_copias)]
+    #f_random_list = [[rd.gauss(0,1) for i in range(int((len(f_sigm_r_APFEL[0])-1)/2))] for j in range(f_N_copias)]
     f_sigm_r_k = [ff_sigm_r_k_xQ2(f_sigm_r_APFEL[i], f_random_list, f_N_copias) for i in range(len(f_sigm_r_APFEL))]
-    return f_sigm_r_k, f_random_list
+    return f_sigm_r_k #, f_random_list
 
 def ff_chi2_rew_aux(f_sigm_r_k_i,f_sigm_exp, f_s_sigm_exp):
 
@@ -493,8 +493,12 @@ def ff_reweighting(f_Q2_data, f_x_data, f_y_data, f_file_name, f_sigm_r_data,
         donde
         f_sigm_r_APFEL_xQ2 = [sigm_0, sigm_{+1}, sigm_{-1},...., sigm_{+N}, sigm_{-N}] '''
      
-    f_sigm_r_k, f_random_list = ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias)
-    
+   
+    f_random_list = [[rd.gauss(0,1) for i in range(int((len(f_sigm_r_APFEL[0])-1)/2))] for j in range(f_N_copias)]
+
+    # f_sigm_r_k, f_random_list = ff_sigm_r_k(f_sigm_r_APFEL, f_N_copias)
+    f_sigm_r_k = ff_sigm_r_k(f_sigm_r_APFEL, f_random_list ,f_N_copias)
+
     f_chi2_k = ff_chi2_rew(f_sigm_r_k, f_sigm_r_data, f_s_sigm_r_data)
     print('Minimo valor de chi^2: ', min(f_chi2_k))
 
