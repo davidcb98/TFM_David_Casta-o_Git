@@ -123,8 +123,6 @@ files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_160', dt
 files_names_data.append(np.loadtxt('Output_rew/files_names/'+'files_fcc_5060', dtype = str).tolist())
 
 
-
-print(files_names_data)
 for i in range(len(sigm_r_data_all)):
     if type(sigm_r_data_all[i][0]) != list:
         sigm_r_data_all[i] = [sigm_r_data_all[i]]
@@ -239,7 +237,7 @@ for k in range(len(files_names_all)):
 
 for i in range(len(chi2_all)):
     print('Max chi2 pesado: ', max(chi2_pesados_all[i]))
-    plt.figure(j)
+    plt.figure(j)   
     fig, ax = plt.subplots()
     plt.title(str(files_names_all[i]))
     plt.hist(chi2_all[i],bins = 100, label = r'Sin pesar')
@@ -252,6 +250,29 @@ for i in range(len(chi2_all)):
     plt.savefig('Output_rew_graf/chi2_'+str(files_names_all[i]))
     plt.close(j)
     j +=1
+
+
+j += 1
+for k in range(len(files_names_all)):
+    plt.figure(j)
+    fig, ax = plt.subplots()
+    for i in range(1,len(index_Q2_all[which_file])-1):        
+        Q2 = Q2_data_all[k][index_Q2_all[k][i]]
+        plt.plot(x_data_all[k][index_Q2_all[k][i]:index_Q2_all[k][i+1]],
+                Q2_data_all[k][index_Q2_all[k][i]:index_Q2_all[k][i+1]],
+                '.r')
+    plt.title(str(files_names_all[k]), fontsize = 18) 
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.xlabel(r'x',fontsize = 18)
+    plt.ylabel(r'$Q^2$', fontsize = 19)
+    plt.xticks(fontsize = 19)        
+    plt.yticks(fontsize = 19)
+       
+    plt.tight_layout()
+    plt.savefig('Output_rew_graf/Fig_'+str(files_names_all[k])+'_plano_xQ2')
+    plt.close(j) 
+    j += 1
 
 #========================================================================================
 # Datos salida
@@ -268,4 +289,7 @@ for i in range(len(files_names_all)):
     # fsalida.write('%d  %10.4f\n' % (i, np.exp(i)))
                 
 file_out.close()
+
+
+
 
